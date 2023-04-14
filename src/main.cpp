@@ -1,0 +1,43 @@
+#include "ToolKit.h"
+#include <iostream>
+
+class TestEvent : public MTK::IButtonClickedEvent
+{
+public:
+    TestEvent () { }
+    ~TestEvent() { }
+    void OnClicked(MTK::Button *button) override
+    {
+        std::cout << "Clicked on " << button->GetText() << std::endl;
+    }
+    
+};
+
+int main(int argc, char *argv[])
+{
+    MTK::ToolKit mtk;
+
+    MTK::Window mainWindow;
+    mainWindow.SetBackgroundColor(MTK::RGBA(0x77, 0x77, 0x77));
+    mainWindow.SetSize(MTK::Size(800, 600));
+    mtk.CreateWindow(mainWindow);
+    
+    mainWindow.SetTitle("Test Application");
+    mtk.Update(mainWindow);
+
+    TestEvent testClickEvent;
+    MTK::Button button(MTK::Rectangle(300, 300, 50, 20));
+    button.SetFontSize(20);
+    button.SetClickedEvent(&testClickEvent);
+    mtk.CreateButton(mainWindow.GetWindowID(), button);
+
+    MTK::Button button2(MTK::Rectangle(100,50, 20, 10));
+    button2.SetText("Click Me");
+    button2.SetFontSize(17);
+    button2.SetBackgroundColor(MTK::RGBA(0xFF, 0xFF, 0xDD, 0xDD));
+    button2.SetClickedEvent(&testClickEvent);
+    mtk.CreateButton(mainWindow.GetWindowID(), button2);
+
+    mtk.MainLoop();
+    return 0;
+}
