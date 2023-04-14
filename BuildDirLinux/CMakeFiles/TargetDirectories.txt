@@ -1,3 +1,0 @@
-/home/halit/Desktop/Projects/C++/Graphics/03/BuildDirLinux/CMakeFiles/rebuild_cache.dir
-/home/halit/Desktop/Projects/C++/Graphics/03/BuildDirLinux/CMakeFiles/edit_cache.dir
-/home/halit/Desktop/Projects/C++/Graphics/03/BuildDirLinux/CMakeFiles/App.dir
