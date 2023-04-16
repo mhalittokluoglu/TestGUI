@@ -17,5 +17,6 @@ file(GLOB_RECURSE APP_HDRS src/*.h)
 add_executable(App ${APP_SRCS} ${APP_HDRS})
 
 target_include_directories(App PUBLIC include)
+target_include_directories(App PRIVATE src)
 
 target_link_libraries(App ${SDL2_LIBRARIES} ${SDL2TTF_LIBRARIES})

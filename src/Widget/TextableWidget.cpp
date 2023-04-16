@@ -1,21 +1,18 @@
-#include "Button.h"
+#include "Widget/TextableWidget.h"
 #include <cstring>
 #include <iostream>
 #include "FontMapper/FontMapper.h"
 
 using namespace MTK;
 
-Button::Button(Rectangle location,
+MTK::TextableWidget::TextableWidget(Rectangle location,
+    RGBA bgColor,
+    RGBA fgColor,
     const char *text,
-    const char *font ,
-    RGBA background,
-    RGBA foreground,
+    const char *font,
     uint8_t fontSize):
-    m_Location { location },
-    m_BackgroundColor { background },
-    m_ForegroundColor { foreground },
-    m_FontSize { fontSize },
-    m_ClickedEvent { nullptr }
+    Widget(location,
+    bgColor)
 {
     SetText(text);
     if (!FontMapper::Instance()->GetFontWithPath(font, m_Font))
@@ -25,7 +22,7 @@ Button::Button(Rectangle location,
     }
 }
 
-void Button::SetText(const char *text)
+void TextableWidget::SetText(const char *text)
 {
     memset(m_Text, 0 , sizeof(m_Text));
     size_t textLength = strlen(text);
@@ -38,7 +35,7 @@ void Button::SetText(const char *text)
     memcpy(m_Text, text, textLength);
 }
 
-void Button::SetFont(const char *font)
+void TextableWidget::SetFont(const char *font)
 {
     memset(m_Font, 0 , sizeof(m_Font));
     size_t fontLength = strlen(font);
@@ -49,12 +46,4 @@ void Button::SetFont(const char *font)
         fontLength = MAX_FONT_SIZE - 1;
     }
     memcpy(m_Font, font, fontLength);
-}
-
-void Button::OnClicked()
-{
-    if (m_ClickedEvent != nullptr)
-    {
-        m_ClickedEvent->OnClicked(this);
-    }
 }

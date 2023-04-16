@@ -1,7 +1,7 @@
 #ifndef _MTK_SDL_STRUCTS_H_
 #define _MTK_SDL_STRUCTS_H_
 #include "SDL_Include.h"
-#include "Button.h"
+#include "Widget/Button.h"
 namespace MTK
 {
     struct TextureWithLocation
