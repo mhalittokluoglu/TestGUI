@@ -2,6 +2,7 @@
 #include "SDL_Related/SDL_Include.h"
 #include "SDL_Related/SDL_ttf_Include.h"
 #include "SDL_Related/SDL_Structs.h"
+#include "Displayer/WidgetDisplayer.h"
 #include <iostream>
 #include <list>
 #include <unordered_map>
@@ -19,8 +20,9 @@ std::unordered_map<WindowID, SDL_Renderer*> SDLRendererMap;
 std::unordered_map<WindowID, SDL_Window*> SDLWindowMap;
 std::unordered_map<WindowID, std::list<TextureWithLocation>*> TextureWindowMap;
 std::unordered_map<WindowID, std::list<SDLButton>*> SDLButtonWindowMap;
+std::unordered_map<WindowID, std::list<IDisplayer*>*> DisplayerMap;
 
-
+SDL_Cursor* sdlCursor = NULL;
 SDL_Cursor* sdlArrowCursor  = NULL;
 SDL_Cursor* sdlHandCursor   = NULL;
 
@@ -145,6 +147,27 @@ bool MTK::ToolKit::CreateButton(WindowID windowID, Button &button)
     return true;
 }
 
+bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
+{
+    if ( SDLRendererMap.find(windowID) == SDLRendererMap.end())
+    {
+        return false;
+    }
+    SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
+    WidgetDisplayer *displayer = new WidgetDisplayer(widget, sdlRenderer);
+
+    std::list<IDisplayer *> *displayerList;
+    if (DisplayerMap.find(windowID) == DisplayerMap.end())
+    {
+        displayerList = new std::list<IDisplayer*>;
+        DisplayerMap[windowID] = displayerList;
+    }
+    displayerList = DisplayerMap[windowID];
+    displayerList->push_back(displayer);
+    
+    return true;
+}
+
 void ToolKit::MainLoop()
 {
     SDL_Event event;
@@ -160,7 +183,7 @@ void ToolKit::MainLoop()
 
             Position mousePosition;
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
-            SDL_Cursor * sdlCursor = sdlArrowCursor;
+            sdlCursor = sdlArrowCursor;
             WindowID windowID = event.window.windowID;
             if (SDLButtonWindowMap.find(windowID) != SDLButtonWindowMap.end())
             {
@@ -185,13 +208,24 @@ void ToolKit::MainLoop()
                         }
                 });
             }
+
+            if (DisplayerMap.find(windowID)!= DisplayerMap.end())
+            {
+                std::list<IDisplayer*>* displayerList = DisplayerMap.at(windowID);
+                std::for_each(displayerList->begin(), displayerList->end(), [&](IDisplayer* displayer)
+                {
+                    displayer->Handle(event, mousePosition);
+                });
+            }
             SDL_SetCursor(sdlCursor);
         }
 
         std::for_each(WindowList.begin(), WindowList.end(), [&](Window* window)
         {
             WindowID windowID = window->GetWindowID();
+            RGBA bg = window->GetBackgroundColor();
             SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID);
+            SDL_SetRenderDrawColor(sdlRenderer, bg.R, bg.G, bg.B, bg.A);
             SDL_RenderClear(sdlRenderer);
 
             Position mousePosition;
@@ -211,6 +245,15 @@ void ToolKit::MainLoop()
                 std::list<SDLButton>* sdlButtonList = SDLButtonWindowMap.at(windowID);
                 std::for_each(sdlButtonList->begin(), sdlButtonList->end(), [&](SDLButton &sdlButton){
                     SDL_RenderCopy(sdlRenderer, sdlButton.Texture, nullptr, &sdlButton.Location);
+                });
+            }
+
+            if (DisplayerMap.find(windowID)!= DisplayerMap.end())
+            {
+                std::list<IDisplayer*>* displayerList = DisplayerMap.at(windowID);
+                std::for_each(displayerList->begin(), displayerList->end(), [&](IDisplayer* displayer)
+                {
+                    displayer->Render();
                 });
             }
 

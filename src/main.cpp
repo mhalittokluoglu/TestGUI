@@ -38,6 +38,9 @@ int main(int argc, char *argv[])
     button2.SetClickedEvent(&testClickEvent);
     mtk.CreateButton(mainWindow.GetWindowID(), button2);
 
+    MTK::Widget widget(MTK::Rectangle(200,200,40,20), MTK::RGBA(0xFF, 0xFF, 0xAA, 0xFF));
+    mtk.CreateWidget(mainWindow.GetWindowID(), widget);
+
     mtk.MainLoop();
     return 0;
 }

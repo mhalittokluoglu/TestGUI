@@ -11,6 +11,7 @@ namespace MTK
         ~ToolKit();
         bool CreateWindow(Window &window);
         bool CreateButton(WindowID windowID, Button &button);
+        bool CreateWidget(WindowID windowID, Widget &widget);
 
         void MainLoop();
         void Update(const Window &window);
