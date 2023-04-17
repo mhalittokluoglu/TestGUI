@@ -5,8 +5,14 @@ namespace MTK
     class IHoverHandler
     {
     public:
+        IHoverHandler(bool hoverEffect = true) :
+            m_bHoverEffect { hoverEffect } { }
         virtual ~IHoverHandler() { }
         virtual void OnHover() = 0;
+        inline bool GetHoverEffectAvailable() const { return m_bHoverEffect; }
+
+    protected:
+        bool m_bHoverEffect;
     };
 } // namespace MTK
 

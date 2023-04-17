@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Widget/Button.h"
 #include "EventHandler/IClickHandler.h"
+#include "EventHandler/IHoverHandler.h"
 #include "Widget/CursorManager.h"
 namespace MTK
 {
@@ -15,6 +16,7 @@ namespace MTK
         bool CreateButton(WindowID windowID, Button &button);
         bool CreateWidget(WindowID windowID, Widget &widget);
         bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
+        bool RegisterHoverEventHandler(WidgetID widgetID, IHoverHandler *handler);
 
         void MainLoop();
         void Update(const Window &window);

@@ -1,6 +1,7 @@
 #include "ToolKit.h"
 #include <iostream>
-#include "ClickHandler/TestClickHandler.h"
+#include "TestHandler/TestClickHandler.h"
+#include "TestHandler/TestHoverHandler.h"
 
 class TestEvent : public MTK::IButtonClickedEvent
 {
@@ -43,6 +44,9 @@ int main(int argc, char *argv[])
     mtk.CreateWidget(mainWindow.GetWindowID(), widget);
     MTK::TestClickHandler testclickHandler(widget);
     mtk.RegisterClickEventHandler(widget.GetWidgetID(), &testclickHandler);
+
+    MTK::TestHoverHandler testhoverHandler(widget);
+    mtk.RegisterHoverEventHandler(widget.GetWidgetID(), &testhoverHandler);
 
     mtk.MainLoop();
     return 0;

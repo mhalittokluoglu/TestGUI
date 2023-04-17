@@ -1,17 +1,17 @@
 #include "WidgetDisplayer.h"
 #include "DisplayerService.h"
 #include <iostream>
-#include "ToolKit.h"
 
 using namespace MTK;
 
 
-WidgetDisplayer::WidgetDisplayer(ToolKit *toolKit, const Widget &widget,
+WidgetDisplayer::WidgetDisplayer(CursorManager* cursorManager, const Widget &widget,
         SDL_Renderer *renderer) :
-    m_ToolKit { toolKit },
+    m_CursorManager { cursorManager },
     m_Widget { widget },
     m_Renderer { renderer },
-    bMousePressedState { false }
+    bMousePressedState { false },
+    bMouseHover { false }
 {
 }
 
@@ -19,8 +19,15 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
     const Position &mousePosition)
 {
     const Rectangle &widgetLocation = m_Widget.GetLocation();
+    bMouseHover = false;
     if (DisplayerService::IsOverlapped(widgetLocation, mousePosition))
     {
+        bMouseHover = true;
+        if (m_ClickHandler != nullptr)
+        {
+            m_CursorManager->SetCursor(CURSOR_HAND);
+        }
+
         if (m_HoverHandler != nullptr)
         {
             m_HoverHandler->OnHover();
@@ -53,4 +60,16 @@ void WidgetDisplayer::Render()
     const Rectangle &location = m_Widget.GetLocation();
     SDL_Rect rect { location.X, location.Y, location.W, location.H };
     SDL_RenderFillRect(m_Renderer, &rect);
+    if (bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
+    {
+        SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
+        SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
+        SDL_RenderDrawRect(m_Renderer, &rectBorder);
+    }
+    else if (bMouseHover && m_HoverHandler != nullptr && m_HoverHandler->GetHoverEffectAvailable())
+    {
+        SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
+        SDL_SetRenderDrawColor(m_Renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderDrawRect(m_Renderer, &rectBorder);
+    }
 }

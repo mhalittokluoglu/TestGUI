@@ -155,7 +155,7 @@ bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
         return false;
     }
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
-    WidgetDisplayer *displayer = new WidgetDisplayer(this, widget, sdlRenderer);
+    WidgetDisplayer *displayer = new WidgetDisplayer(m_CursorManager, widget, sdlRenderer);
 
     std::list<IDisplayer *> *displayerList;
     if (DisplayerMap.find(windowID) == DisplayerMap.end())
@@ -177,10 +177,22 @@ bool ToolKit::RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handle
     {
         IDisplayer *displayer = WidgetDisplayerMap.at(widgetID);
         displayer->RegisterClickHandler(handler);
+        bResult = true;
     }
     return bResult;
 }
 
+bool ToolKit::RegisterHoverEventHandler(WidgetID widgetID, IHoverHandler *handler)
+{
+    bool bResult = false;
+    if (WidgetDisplayerMap.find(widgetID) != WidgetDisplayerMap.end())
+    {
+        IDisplayer *displayer = WidgetDisplayerMap.at(widgetID);
+        displayer->RegisterHoverHandler(handler);
+        bResult = true;
+    }
+    return bResult;
+}
 
 void ToolKit::MainLoop()
 {
