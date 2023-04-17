@@ -17,6 +17,7 @@ namespace MTK
     private:
         const Widget &m_Widget;
         SDL_Renderer *m_Renderer;
+        bool bMousePressedState;
     };
 } // namespace MTK
 

@@ -2,6 +2,7 @@
 #define _MTK_TOOLKIT_H_
 #include "Window.h"
 #include "Widget/Button.h"
+#include "EventHandler/IClickHandler.h"
 namespace MTK
 {
     class ToolKit
@@ -12,6 +13,7 @@ namespace MTK
         bool CreateWindow(Window &window);
         bool CreateButton(WindowID windowID, Button &button);
         bool CreateWidget(WindowID windowID, Widget &widget);
+        bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
 
         void MainLoop();
         void Update(const Window &window);

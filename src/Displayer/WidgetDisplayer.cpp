@@ -4,14 +4,12 @@
 
 using namespace MTK;
 
-extern SDL_Cursor* sdlCursor;
-extern SDL_Cursor* sdlArrowCursor;
-extern SDL_Cursor* sdlHandCursor;
 
 WidgetDisplayer::WidgetDisplayer(const Widget &widget,
         SDL_Renderer *renderer) :
     m_Widget { widget },
-    m_Renderer { renderer }
+    m_Renderer { renderer },
+    bMousePressedState { false }
 {
 }
 
@@ -21,7 +19,28 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
     const Rectangle &widgetLocation = m_Widget.GetLocation();
     if (DisplayerService::IsOverlapped(widgetLocation, mousePosition))
     {
-        sdlCursor = sdlHandCursor;
+        if (m_HoverHandler != nullptr)
+        {
+            m_HoverHandler->OnHover();
+        }
+        if (event.type == SDL_MOUSEBUTTONDOWN)
+        {
+            bMousePressedState = true;
+        }
+        else if (event.type == SDL_MOUSEBUTTONUP)
+        {
+            if (bMousePressedState)
+            {
+                if (m_ClickHandler != nullptr)
+                {
+                    m_ClickHandler->OnClicked();
+                }
+            }
+        }
+    }
+    if (event.type == SDL_MOUSEBUTTONUP)
+    {
+        bMousePressedState = false;
     }
 }
 

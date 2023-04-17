@@ -1,5 +1,6 @@
 #include "ToolKit.h"
 #include <iostream>
+#include "ClickHandler/TestClickHandler.h"
 
 class TestEvent : public MTK::IButtonClickedEvent
 {
@@ -40,6 +41,8 @@ int main(int argc, char *argv[])
 
     MTK::Widget widget(MTK::Rectangle(200,200,40,20), MTK::RGBA(0xFF, 0xFF, 0xAA, 0xFF));
     mtk.CreateWidget(mainWindow.GetWindowID(), widget);
+    MTK::TestClickHandler testclickHandler(widget);
+    mtk.RegisterClickEventHandler(widget.GetWidgetID(), &testclickHandler);
 
     mtk.MainLoop();
     return 0;

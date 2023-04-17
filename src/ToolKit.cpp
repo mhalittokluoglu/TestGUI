@@ -21,6 +21,7 @@ std::unordered_map<WindowID, SDL_Window*> SDLWindowMap;
 std::unordered_map<WindowID, std::list<TextureWithLocation>*> TextureWindowMap;
 std::unordered_map<WindowID, std::list<SDLButton>*> SDLButtonWindowMap;
 std::unordered_map<WindowID, std::list<IDisplayer*>*> DisplayerMap;
+std::unordered_map<WidgetID, IDisplayer*> WidgetDisplayerMap;
 
 SDL_Cursor* sdlCursor = NULL;
 SDL_Cursor* sdlArrowCursor  = NULL;
@@ -153,6 +154,11 @@ bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
     {
         return false;
     }
+    if (WidgetDisplayerMap.find(widget.GetWidgetID()) != WidgetDisplayerMap.end())
+    {
+        std::cout << "Widget with ID: " << widget.GetWidgetID() << " already exist!\n";
+        return false;
+    }
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
     WidgetDisplayer *displayer = new WidgetDisplayer(widget, sdlRenderer);
 
@@ -164,9 +170,22 @@ bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
     }
     displayerList = DisplayerMap[windowID];
     displayerList->push_back(displayer);
+    WidgetDisplayerMap[widget.GetWidgetID()] = displayer;
     
     return true;
 }
+
+bool ToolKit::RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler)
+{
+    bool bResult = false;
+    if (WidgetDisplayerMap.find(widgetID) != WidgetDisplayerMap.end())
+    {
+        IDisplayer *displayer = WidgetDisplayerMap.at(widgetID);
+        displayer->RegisterClickHandler(handler);
+    }
+    return bResult;
+}
+
 
 void ToolKit::MainLoop()
 {
