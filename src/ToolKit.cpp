@@ -23,10 +23,6 @@ std::unordered_map<WindowID, std::list<SDLButton>*> SDLButtonWindowMap;
 std::unordered_map<WindowID, std::list<IDisplayer*>*> DisplayerMap;
 std::unordered_map<WidgetID, IDisplayer*> WidgetDisplayerMap;
 
-SDL_Cursor* sdlCursor = NULL;
-SDL_Cursor* sdlArrowCursor  = NULL;
-SDL_Cursor* sdlHandCursor   = NULL;
-
 
 ToolKit::ToolKit()
 {
@@ -39,8 +35,7 @@ ToolKit::ToolKit()
         std::cerr << "Failed to initialize TTF: " << TTF_GetError() << std::endl;
         SDL_Quit();
     }
-    sdlArrowCursor  = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_ARROW);
-    sdlHandCursor   = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_HAND);
+    m_CursorManager = new CursorManager();
 }
 
 ToolKit::~ToolKit()
@@ -160,7 +155,7 @@ bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
         return false;
     }
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
-    WidgetDisplayer *displayer = new WidgetDisplayer(widget, sdlRenderer);
+    WidgetDisplayer *displayer = new WidgetDisplayer(this, widget, sdlRenderer);
 
     std::list<IDisplayer *> *displayerList;
     if (DisplayerMap.find(windowID) == DisplayerMap.end())
@@ -202,18 +197,18 @@ void ToolKit::MainLoop()
 
             Position mousePosition;
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
-            sdlCursor = sdlArrowCursor;
             WindowID windowID = event.window.windowID;
             if (SDLButtonWindowMap.find(windowID) != SDLButtonWindowMap.end())
             {
                 std::list<SDLButton>* sdlButtonList = SDLButtonWindowMap.at(windowID);
+                m_CursorManager->SetCursor(CURSOR_ARROW);
                 std::for_each(sdlButtonList->begin(), sdlButtonList->end(), [&](SDLButton &sdlButton){
                     if (sdlButton.Location.x < mousePosition.X &&
                         sdlButton.Location.y < mousePosition.Y &&
                         sdlButton.Location.x + sdlButton.Location.w > mousePosition.X &&
                         sdlButton.Location.y + sdlButton.Location.h > mousePosition.Y)
                         {
-                            sdlCursor = sdlHandCursor;
+                            m_CursorManager->SetCursor(CURSOR_HAND);
                             if (event.type == SDL_MOUSEBUTTONUP)
                             {
                                 if (sdlButton.downState)
@@ -236,6 +231,7 @@ void ToolKit::MainLoop()
                     displayer->Handle(event, mousePosition);
                 });
             }
+            SDL_Cursor* sdlCursor = static_cast<SDL_Cursor*>(m_CursorManager->GetCursor());
             SDL_SetCursor(sdlCursor);
         }
 
@@ -251,7 +247,6 @@ void ToolKit::MainLoop()
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
             
 
-            SDL_Cursor * sdlCursor = sdlArrowCursor;
             if (TextureWindowMap.find(windowID) != TextureWindowMap.end())
             {
                 std::list<TextureWithLocation>* textureList = TextureWindowMap.at(windowID);

@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Widget/Button.h"
 #include "EventHandler/IClickHandler.h"
+#include "Widget/CursorManager.h"
 namespace MTK
 {
     class ToolKit
@@ -18,6 +19,8 @@ namespace MTK
         void MainLoop();
         void Update(const Window &window);
 
+    private:
+        CursorManager *m_CursorManager;
     };
 } // namespace MTK
 

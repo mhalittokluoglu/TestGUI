@@ -4,10 +4,11 @@
 #include "IDisplayer.h"
 namespace MTK
 {
+    class ToolKit;
     class WidgetDisplayer : public IDisplayer
     {
     public:
-        WidgetDisplayer(const Widget &widget,
+        WidgetDisplayer(ToolKit *toolKit, const Widget &widget,
             SDL_Renderer *renderer);
         virtual ~WidgetDisplayer() { }
         virtual void Handle(const SDL_Event &event,
@@ -18,6 +19,7 @@ namespace MTK
         const Widget &m_Widget;
         SDL_Renderer *m_Renderer;
         bool bMousePressedState;
+        ToolKit *m_ToolKit;
     };
 } // namespace MTK
 

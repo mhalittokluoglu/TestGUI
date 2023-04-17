@@ -1,12 +1,14 @@
 #include "WidgetDisplayer.h"
 #include "DisplayerService.h"
 #include <iostream>
+#include "ToolKit.h"
 
 using namespace MTK;
 
 
-WidgetDisplayer::WidgetDisplayer(const Widget &widget,
+WidgetDisplayer::WidgetDisplayer(ToolKit *toolKit, const Widget &widget,
         SDL_Renderer *renderer) :
+    m_ToolKit { toolKit },
     m_Widget { widget },
     m_Renderer { renderer },
     bMousePressedState { false }
