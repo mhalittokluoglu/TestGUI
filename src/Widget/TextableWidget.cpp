@@ -12,7 +12,9 @@ MTK::TextableWidget::TextableWidget(Rectangle location,
     const char *font,
     uint8_t fontSize):
     Widget(location,
-    bgColor)
+    bgColor),
+    m_ForegroundColor { fgColor },
+    m_FontSize { fontSize }
 {
     SetText(text);
     if (!FontMapper::Instance()->GetFontWithPath(font, m_Font))

@@ -2,9 +2,10 @@
 #define _MTK_BUTTON_H_
 #include "TextableWidget.h"
 #include "IButtonClickedEvent.h"
+#include "EventHandler/IClickHandler.h"
 namespace MTK
 {
-    class ToolKit;
+    class ButtonClickHandler;
     class Button : public TextableWidget
     {
     public:
@@ -13,22 +14,40 @@ namespace MTK
             const char *font = "Fira Code",
             RGBA bgColor = RGBA(0xAA, 0xAA, 0xAA, 0xFF),
             RGBA fgColor = RGBA(0x00, 0x00, 0x00, 0xFF),
-            uint8_t fontSize = 12) :
-                TextableWidget(location, bgColor,
-                fgColor, text, font, fontSize),
-                m_ClickedEvent { nullptr } { }
+            uint8_t fontSize = 12);
         virtual ~Button() { }
 
     // Setters
-        inline void SetClickedEvent(IButtonClickedEvent *event) { m_ClickedEvent = event; }
+        void SetClickedEvent(IButtonClickedEvent *event);
+
+    // Getters
+        IClickHandler* GetClickHandler() const;
 
     private:
+        ButtonClickHandler *m_ClickedHandler;
+    };
+    
+    class ButtonClickHandler : public IClickHandler
+    {
+    public:
+        ButtonClickHandler(Button *button, IButtonClickedEvent *clickedEvent) :
+            m_Button { button },
+            m_ClickedEvent { clickedEvent } { }
+        virtual ~ButtonClickHandler () { }
+        void SetClickedEvent(IButtonClickedEvent *clickedEvent)
+        {
+            m_ClickedEvent = clickedEvent;
+        }
+        virtual void OnClicked() override
+        {
+            if (m_ClickedEvent != nullptr)
+            {
+                m_ClickedEvent->OnClicked(m_Button);
+            }
+        }
+    private:
+        Button *m_Button;
         IButtonClickedEvent *m_ClickedEvent;
-
-    private:
-        void OnClicked();
-        friend class ToolKit;
-
     };
 } // namespace MTK
 

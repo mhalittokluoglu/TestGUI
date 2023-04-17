@@ -3,6 +3,7 @@
 #include "SDL_Related/SDL_ttf_Include.h"
 #include "SDL_Related/SDL_Structs.h"
 #include "Displayer/WidgetDisplayer.h"
+#include "Displayer/TextableWidgetDisplayer.h"
 #include <iostream>
 #include <list>
 #include <unordered_map>
@@ -18,11 +19,37 @@ std::list<SDL_Renderer*> SDLRendererList;
 
 std::unordered_map<WindowID, SDL_Renderer*> SDLRendererMap;
 std::unordered_map<WindowID, SDL_Window*> SDLWindowMap;
-std::unordered_map<WindowID, std::list<TextureWithLocation>*> TextureWindowMap;
-std::unordered_map<WindowID, std::list<SDLButton>*> SDLButtonWindowMap;
 std::unordered_map<WindowID, std::list<IDisplayer*>*> DisplayerMap;
 std::unordered_map<WidgetID, IDisplayer*> WidgetDisplayerMap;
 
+
+static bool IsWidgetValidToCreate(WindowID windowID, WidgetID widgetID)
+{
+    if ( SDLRendererMap.find(windowID) == SDLRendererMap.end())
+    {
+        return false;
+    }
+    if (WidgetDisplayerMap.find(widgetID) != WidgetDisplayerMap.end())
+    {
+        std::cout << "Widget with ID: " << widgetID << " already exist!\n";
+        return false;
+    }
+    return true;
+}
+
+
+static void AddToWidgetDisplayerList(WindowID windowID, WidgetID widgetID, IDisplayer *displayer)
+{
+    std::list<IDisplayer *> *displayerList;
+    if (DisplayerMap.find(windowID) == DisplayerMap.end())
+    {
+        displayerList = new std::list<IDisplayer*>;
+        DisplayerMap[windowID] = displayerList;
+    }
+    displayerList = DisplayerMap[windowID];
+    displayerList->push_back(displayer);
+    WidgetDisplayerMap[widgetID] = displayer;
+}
 
 ToolKit::ToolKit()
 {
@@ -88,85 +115,43 @@ bool ToolKit::CreateWindow(Window &window)
 
 bool MTK::ToolKit::CreateButton(WindowID windowID, Button &button)
 {
-    if (SDLRendererMap.find(windowID) == SDLRendererMap.end())
+    if (!CreateTextableWidget(windowID, button))
     {
-        std::cout << "Unable to find Window with ID: " << windowID << std::endl;
         return false;
     }
-    SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID);
-    Rectangle buttonLocation = button.GetLocation();
-    SDL_Rect sdlButtonLocation = {buttonLocation.X,
-        buttonLocation.Y,
-        buttonLocation.W,
-        buttonLocation.H};
-
-
-    RGBA bgColor = button.GetBackgroundColor();
-    SDL_Color bg = {bgColor.R, bgColor.G, bgColor.B, bgColor.A};
-
-
-    RGBA fgColor = button.GetForegroundColor();
-    SDL_Color fg = {fgColor.R, fgColor.G, fgColor.B, fgColor.A};
-
-    TTF_Font* font = TTF_OpenFont(button.GetFont(), button.GetFontSize());
-    SDL_Surface* textSurface = TTF_RenderText_Shaded(font, button.GetText(), fg, bg);
-    SDL_Texture* buttonTexture = SDL_CreateTextureFromSurface(sdlRenderer, textSurface);
-
-    SDL_Rect textLocation;
-    textLocation.x = sdlButtonLocation.x + sdlButtonLocation.w / 2;
-    textLocation.y = sdlButtonLocation.y + sdlButtonLocation.h / 2 - textSurface->h / 2;
-    textLocation.w = textSurface->w;
-    textLocation.h = textSurface->h;
-
-    SDL_RenderCopy(sdlRenderer, buttonTexture, nullptr, &textLocation);
-    SDL_FreeSurface(textSurface);
-    TTF_CloseFont(font);
-
-    SDLButton sdlButton;
-    sdlButton.button = &button;
-    sdlButton.Texture = buttonTexture;
-    sdlButton.Location = textLocation;
-    sdlButton.downState = false;
-
-    std::list<SDLButton> *buttonList;
-    if (SDLButtonWindowMap.find(windowID) == SDLButtonWindowMap.end())
+    if (!RegisterClickEventHandler(button.GetWidgetID(), button.GetClickHandler()))
     {
-        buttonList = new std::list<SDLButton>;
-        SDLButtonWindowMap[windowID] = buttonList;
+        return false;
     }
-    else
-    {
-        buttonList = SDLButtonWindowMap.at(windowID);
-    }
-    buttonList->push_back(sdlButton);
-    
     return true;
 }
 
 bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
 {
-    if ( SDLRendererMap.find(windowID) == SDLRendererMap.end())
+    const WidgetID widgetID = widget.GetWidgetID();
+    if (!IsWidgetValidToCreate(windowID, widgetID))
     {
         return false;
     }
-    if (WidgetDisplayerMap.find(widget.GetWidgetID()) != WidgetDisplayerMap.end())
-    {
-        std::cout << "Widget with ID: " << widget.GetWidgetID() << " already exist!\n";
-        return false;
-    }
+    widget.SetWindowID(windowID);
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
     WidgetDisplayer *displayer = new WidgetDisplayer(m_CursorManager, widget, sdlRenderer);
+    AddToWidgetDisplayerList(windowID, widgetID, displayer);
+    return true;
+}
 
-    std::list<IDisplayer *> *displayerList;
-    if (DisplayerMap.find(windowID) == DisplayerMap.end())
+bool ToolKit::CreateTextableWidget(WindowID windowID, TextableWidget &textableWidget)
+{
+    const WidgetID widgetID = textableWidget.GetWidgetID();
+    if (!IsWidgetValidToCreate(windowID, widgetID))
     {
-        displayerList = new std::list<IDisplayer*>;
-        DisplayerMap[windowID] = displayerList;
+        return false;
     }
-    displayerList = DisplayerMap[windowID];
-    displayerList->push_back(displayer);
-    WidgetDisplayerMap[widget.GetWidgetID()] = displayer;
-    
+    textableWidget.SetWindowID(windowID);
+    SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
+    textableWidget.SetLocation(TextableWidgetDisplayer::GetTextSize(textableWidget));
+    TextableWidgetDisplayer *displayer = new TextableWidgetDisplayer(m_CursorManager, textableWidget, sdlRenderer);
+    AddToWidgetDisplayerList(windowID, widgetID, displayer);
     return true;
 }
 
@@ -210,30 +195,6 @@ void ToolKit::MainLoop()
             Position mousePosition;
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
             WindowID windowID = event.window.windowID;
-            if (SDLButtonWindowMap.find(windowID) != SDLButtonWindowMap.end())
-            {
-                std::list<SDLButton>* sdlButtonList = SDLButtonWindowMap.at(windowID);
-                m_CursorManager->SetCursor(CURSOR_ARROW);
-                std::for_each(sdlButtonList->begin(), sdlButtonList->end(), [&](SDLButton &sdlButton){
-                    if (sdlButton.Location.x < mousePosition.X &&
-                        sdlButton.Location.y < mousePosition.Y &&
-                        sdlButton.Location.x + sdlButton.Location.w > mousePosition.X &&
-                        sdlButton.Location.y + sdlButton.Location.h > mousePosition.Y)
-                        {
-                            m_CursorManager->SetCursor(CURSOR_HAND);
-                            if (event.type == SDL_MOUSEBUTTONUP)
-                            {
-                                if (sdlButton.downState)
-                                    sdlButton.button->OnClicked();
-                                sdlButton.downState = false;
-                            }
-                            if (event.type == SDL_MOUSEBUTTONDOWN)
-                            {
-                                sdlButton.downState = true;
-                            }
-                        }
-                });
-            }
 
             if (DisplayerMap.find(windowID)!= DisplayerMap.end())
             {
@@ -258,22 +219,6 @@ void ToolKit::MainLoop()
             Position mousePosition;
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
             
-
-            if (TextureWindowMap.find(windowID) != TextureWindowMap.end())
-            {
-                std::list<TextureWithLocation>* textureList = TextureWindowMap.at(windowID);
-                std::for_each(textureList->begin(), textureList->end(), [&](TextureWithLocation &textureLocation){
-                    SDL_RenderCopy(sdlRenderer, textureLocation.Texture, nullptr, &textureLocation.Location);
-                });
-            }
-            if (SDLButtonWindowMap.find(windowID) != SDLButtonWindowMap.end())
-            {
-                std::list<SDLButton>* sdlButtonList = SDLButtonWindowMap.at(windowID);
-                std::for_each(sdlButtonList->begin(), sdlButtonList->end(), [&](SDLButton &sdlButton){
-                    SDL_RenderCopy(sdlRenderer, sdlButton.Texture, nullptr, &sdlButton.Location);
-                });
-            }
-
             if (DisplayerMap.find(windowID)!= DisplayerMap.end())
             {
                 std::list<IDisplayer*>* displayerList = DisplayerMap.at(windowID);

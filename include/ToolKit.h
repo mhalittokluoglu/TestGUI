@@ -15,6 +15,7 @@ namespace MTK
         bool CreateWindow(Window &window);
         bool CreateButton(WindowID windowID, Button &button);
         bool CreateWidget(WindowID windowID, Widget &widget);
+        bool CreateTextableWidget(WindowID windowID, TextableWidget &textableWidget);
         bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
         bool RegisterHoverEventHandler(WidgetID widgetID, IHoverHandler *handler);
 
@@ -23,6 +24,7 @@ namespace MTK
 
     private:
         CursorManager *m_CursorManager;
+
     };
 } // namespace MTK
 

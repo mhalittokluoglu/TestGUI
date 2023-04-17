@@ -25,7 +25,7 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
         bMouseHover = true;
         if (m_ClickHandler != nullptr)
         {
-            m_CursorManager->SetCursor(CURSOR_HAND);
+            m_CursorManager->SetCursor(SDL_SYSTEM_CURSOR_HAND);
         }
 
         if (m_HoverHandler != nullptr)

@@ -15,7 +15,7 @@ namespace MTK
             const Position &mousePosition) override;
         virtual void Render() override;
 
-    private:
+    protected:
         const Widget &m_Widget;
         SDL_Renderer *m_Renderer;
         bool bMousePressedState;
