@@ -4,6 +4,7 @@
 #include "TestHandler/TestHoverHandler.h"
 #include "Widget/Label.h"
 
+
 class TestEvent : public MTK::IButtonClickedEvent
 {
 public:
@@ -59,6 +60,11 @@ int main(int argc, char *argv[])
 
     MTK::Label label1(MTK::Rectangle(50, 50),"Merhaba");
     mtk.CreateLabel(mainWindow.GetWindowID(), label1);
+
+    MTK::DynamicTextWidget textWidget(MTK::Rectangle(250,50, 200, 50),
+        MTK::RGBA(0xFF, 0xFF, 0xFF, 0xFF),
+        MTK::RGBA(0, 0, 0, 0xFF), "Fira Code", 12);
+    mtk.CreateDynamicTextWidget(mainWindow.GetWindowID(), textWidget);
 
     mtk.MainLoop();
     return 0;

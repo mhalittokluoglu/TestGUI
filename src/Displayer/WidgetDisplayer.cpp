@@ -11,7 +11,8 @@ WidgetDisplayer::WidgetDisplayer(CursorManager* cursorManager, const Widget &wid
     m_Widget { widget },
     m_Renderer { renderer },
     bMousePressedState { false },
-    bMouseHover { false }
+    bMouseHover { false },
+    m_bFocused { false }
 {
 }
 
@@ -25,7 +26,7 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
         bMouseHover = true;
         if (m_ClickHandler != nullptr)
         {
-            m_CursorManager->SetCursor(SDL_SYSTEM_CURSOR_HAND);
+            m_CursorManager->SetCursor(CURSOR_HAND);
         }
 
         if (m_HoverHandler != nullptr)
@@ -44,7 +45,15 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
                 {
                     m_ClickHandler->OnClicked();
                 }
+                m_bFocused = true;
             }
+        }
+    }
+    else
+    {
+        if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+        {
+                m_bFocused = false;
         }
     }
     if (event.type == SDL_MOUSEBUTTONUP)

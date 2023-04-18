@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Widget/Button.h"
 #include "Widget/Label.h"
+#include "Widget/DynamicTextWidget.h"
 #include "EventHandler/IClickHandler.h"
 #include "EventHandler/IHoverHandler.h"
 #include "Widget/CursorManager.h"
@@ -17,7 +18,8 @@ namespace MTK
         bool CreateButton(WindowID windowID, Button &button);
         bool CreateLabel(WindowID windowID, Label &label);
         bool CreateWidget(WindowID windowID, Widget &widget);
-        bool CreateStaticTextWidget(WindowID windowID, StaticTextWidget &StaticTextWidget);
+        bool CreateStaticTextWidget(WindowID windowID, StaticTextWidget &staticTextWidget);
+        bool CreateDynamicTextWidget(WindowID windowID, DynamicTextWidget& dynamicTextWidget);
         bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
         bool RegisterHoverEventHandler(WidgetID widgetID, IHoverHandler *handler);
 

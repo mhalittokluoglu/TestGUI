@@ -20,6 +20,7 @@ namespace MTK
         SDL_Renderer *m_Renderer;
         bool bMousePressedState;
         bool bMouseHover;
+        bool m_bFocused;
         CursorManager *m_CursorManager;
     };
 } // namespace MTK

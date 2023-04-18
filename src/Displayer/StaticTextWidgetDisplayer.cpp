@@ -5,10 +5,10 @@ using namespace MTK;
 
 StaticTextWidgetDisplayer::StaticTextWidgetDisplayer(
     CursorManager *cursorManager,
-    const StaticTextWidget &StaticTextWidget,
+    const StaticTextWidget &staticTextWidget,
     SDL_Renderer *renderer) : 
-        WidgetDisplayer(cursorManager, StaticTextWidget, renderer),
-        m_StaticTextWidget { StaticTextWidget }
+        WidgetDisplayer(cursorManager, staticTextWidget, renderer),
+        m_StaticTextWidget { staticTextWidget }
 {
     const Rectangle &location = m_Widget.GetLocation();
 
@@ -19,9 +19,9 @@ StaticTextWidgetDisplayer::StaticTextWidgetDisplayer(
     SDL_Color fg = {fgColor.R, fgColor.G, fgColor.B, fgColor.A};
 
     TTF_Font* font = TTF_OpenFont(m_StaticTextWidget.GetFont(), m_StaticTextWidget.GetFontSize());
-    SDL_Surface* textSurface = TTF_RenderText_Shaded(font, m_StaticTextWidget.GetText(), fg, bg);
+    SDL_Surface* textSurface = TTF_RenderUTF8_Shaded(font, m_StaticTextWidget.GetText(), fg, bg);
     if (bg.a == 0)
-        textSurface = TTF_RenderText_Blended(font, m_StaticTextWidget.GetText(), fg);
+        textSurface = TTF_RenderUTF8_Blended(font, m_StaticTextWidget.GetText(), fg);
     m_Texture = SDL_CreateTextureFromSurface(m_Renderer, textSurface);
 
     m_TextLocation.x = location.X;
@@ -57,11 +57,11 @@ void StaticTextWidgetDisplayer::Render()
     }
 }
 
-Rectangle StaticTextWidgetDisplayer::GetTextSize(const StaticTextWidget &StaticTextWidget)
+Rectangle StaticTextWidgetDisplayer::GetTextSize(const StaticTextWidget &staticTextWidget)
 {
-    TTF_Font* font = TTF_OpenFont(StaticTextWidget.GetFont(), StaticTextWidget.GetFontSize());
+    TTF_Font* font = TTF_OpenFont(staticTextWidget.GetFont(), staticTextWidget.GetFontSize());
     int w, h;
-    TTF_SizeText(font, StaticTextWidget.GetText(), &w, &h);
-    const Rectangle location = StaticTextWidget.GetLocation();
+    TTF_SizeText(font, staticTextWidget.GetText(), &w, &h);
+    const Rectangle location = staticTextWidget.GetLocation();
     return Rectangle(location.X, location.Y, w, h); 
 }

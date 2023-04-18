@@ -9,14 +9,14 @@ namespace MTK
     {
     public:
         StaticTextWidgetDisplayer(CursorManager *cursorManager,
-            const StaticTextWidget &StaticTextWidget,
+            const StaticTextWidget &staticTextWidget,
             SDL_Renderer *renderer);
         virtual ~StaticTextWidgetDisplayer() { }
         virtual void Handle(const SDL_Event &event,
             const Position &mousePosition) override;
         virtual void Render() override;
 
-        static Rectangle GetTextSize(const StaticTextWidget &StaticTextWidget);
+        static Rectangle GetTextSize(const StaticTextWidget &staticTextWidget);
 
     protected:
         SDL_Texture *m_Texture;
