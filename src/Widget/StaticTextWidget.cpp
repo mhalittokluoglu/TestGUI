@@ -1,11 +1,11 @@
-#include "Widget/TextableWidget.h"
+#include "Widget/StaticTextWidget.h"
 #include <cstring>
 #include <iostream>
 #include "FontMapper/FontMapper.h"
 
 using namespace MTK;
 
-MTK::TextableWidget::TextableWidget(Rectangle location,
+MTK::StaticTextWidget::StaticTextWidget(Rectangle location,
     RGBA bgColor,
     RGBA fgColor,
     const char *text,
@@ -24,7 +24,7 @@ MTK::TextableWidget::TextableWidget(Rectangle location,
     }
 }
 
-void TextableWidget::SetText(const char *text)
+void StaticTextWidget::SetText(const char *text)
 {
     memset(m_Text, 0 , sizeof(m_Text));
     size_t textLength = strlen(text);
@@ -37,7 +37,7 @@ void TextableWidget::SetText(const char *text)
     memcpy(m_Text, text, textLength);
 }
 
-void TextableWidget::SetFont(const char *font)
+void StaticTextWidget::SetFont(const char *font)
 {
     memset(m_Font, 0 , sizeof(m_Font));
     size_t fontLength = strlen(font);

@@ -3,7 +3,7 @@
 #include "SDL_Related/SDL_ttf_Include.h"
 #include "SDL_Related/SDL_Structs.h"
 #include "Displayer/WidgetDisplayer.h"
-#include "Displayer/TextableWidgetDisplayer.h"
+#include "Displayer/StaticTextWidgetDisplayer.h"
 #include <iostream>
 #include <list>
 #include <unordered_map>
@@ -117,7 +117,7 @@ bool ToolKit::CreateWindow(Window &window)
 
 bool MTK::ToolKit::CreateButton(WindowID windowID, Button &button)
 {
-    if (!CreateTextableWidget(windowID, button))
+    if (!CreateStaticTextWidget(windowID, button))
     {
         return false;
     }
@@ -131,7 +131,7 @@ bool MTK::ToolKit::CreateButton(WindowID windowID, Button &button)
 bool MTK::ToolKit::CreateLabel(WindowID windowID, Label &label)
 {
     bool bResult = false;
-    if (CreateTextableWidget(windowID, label))
+    if (CreateStaticTextWidget(windowID, label))
     {
         bResult = true;;
     }
@@ -152,17 +152,17 @@ bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
     return true;
 }
 
-bool ToolKit::CreateTextableWidget(WindowID windowID, TextableWidget &textableWidget)
+bool ToolKit::CreateStaticTextWidget(WindowID windowID, StaticTextWidget &StaticTextWidget)
 {
-    const WidgetID widgetID = textableWidget.GetWidgetID();
+    const WidgetID widgetID = StaticTextWidget.GetWidgetID();
     if (!IsWidgetValidToCreate(windowID, widgetID))
     {
         return false;
     }
-    textableWidget.SetWindowID(windowID);
+    StaticTextWidget.SetWindowID(windowID);
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
-    textableWidget.SetLocation(TextableWidgetDisplayer::GetTextSize(textableWidget));
-    TextableWidgetDisplayer *displayer = new TextableWidgetDisplayer(m_CursorManager, textableWidget, sdlRenderer);
+    StaticTextWidget.SetLocation(StaticTextWidgetDisplayer::GetTextSize(StaticTextWidget));
+    StaticTextWidgetDisplayer *displayer = new StaticTextWidgetDisplayer(m_CursorManager, StaticTextWidget, sdlRenderer);
     AddToWidgetDisplayerList(windowID, widgetID, displayer);
     return true;
 }
@@ -219,6 +219,15 @@ void ToolKit::MainLoop()
             }
             SDL_Cursor* sdlCursor = m_CursorManager->GetCursor();
             SDL_SetCursor(sdlCursor);
+
+            if (event.type == SDL_TEXTINPUT)
+            {
+                std::cout << event.text.text << ", ";
+                std::cout.flush();
+            }
+            if (event.type == SDL_TEXTEDITING)
+            {
+            }
         }
 
         std::for_each(WindowList.begin(), WindowList.end(), [&](Window* window)

@@ -1,27 +1,27 @@
-#include "TextableWidgetDisplayer.h"
+#include "StaticTextWidgetDisplayer.h"
 #include "SDL_Related/SDL_ttf_Include.h"
 
 using namespace MTK;
 
-TextableWidgetDisplayer::TextableWidgetDisplayer(
+StaticTextWidgetDisplayer::StaticTextWidgetDisplayer(
     CursorManager *cursorManager,
-    const TextableWidget &textableWidget,
+    const StaticTextWidget &StaticTextWidget,
     SDL_Renderer *renderer) : 
-        WidgetDisplayer(cursorManager, textableWidget, renderer),
-        m_TextableWidget { textableWidget }
+        WidgetDisplayer(cursorManager, StaticTextWidget, renderer),
+        m_StaticTextWidget { StaticTextWidget }
 {
     const Rectangle &location = m_Widget.GetLocation();
 
-    RGBA bgColor = m_TextableWidget.GetBackgroundColor();
+    RGBA bgColor = m_StaticTextWidget.GetBackgroundColor();
     SDL_Color bg = {bgColor.R, bgColor.G, bgColor.B, bgColor.A};
 
-    RGBA fgColor = m_TextableWidget.GetForegroundColor();
+    RGBA fgColor = m_StaticTextWidget.GetForegroundColor();
     SDL_Color fg = {fgColor.R, fgColor.G, fgColor.B, fgColor.A};
 
-    TTF_Font* font = TTF_OpenFont(m_TextableWidget.GetFont(), m_TextableWidget.GetFontSize());
-    SDL_Surface* textSurface = TTF_RenderText_Shaded(font, m_TextableWidget.GetText(), fg, bg);
+    TTF_Font* font = TTF_OpenFont(m_StaticTextWidget.GetFont(), m_StaticTextWidget.GetFontSize());
+    SDL_Surface* textSurface = TTF_RenderText_Shaded(font, m_StaticTextWidget.GetText(), fg, bg);
     if (bg.a == 0)
-        textSurface = TTF_RenderText_Blended(font, m_TextableWidget.GetText(), fg);
+        textSurface = TTF_RenderText_Blended(font, m_StaticTextWidget.GetText(), fg);
     m_Texture = SDL_CreateTextureFromSurface(m_Renderer, textSurface);
 
     m_TextLocation.x = location.X;
@@ -34,14 +34,14 @@ TextableWidgetDisplayer::TextableWidgetDisplayer(
     TTF_CloseFont(font);
 }
 
-void TextableWidgetDisplayer::Handle(const SDL_Event &event, const Position &mousePosition)
+void StaticTextWidgetDisplayer::Handle(const SDL_Event &event, const Position &mousePosition)
 {
     WidgetDisplayer::Handle(event, mousePosition);
 }
 
-void TextableWidgetDisplayer::Render()
+void StaticTextWidgetDisplayer::Render()
 {
-    const Rectangle &location = m_TextableWidget.GetLocation();
+    const Rectangle &location = m_StaticTextWidget.GetLocation();
     SDL_RenderCopy(m_Renderer, m_Texture, nullptr, &m_TextLocation);
     if (bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
     {
@@ -57,11 +57,11 @@ void TextableWidgetDisplayer::Render()
     }
 }
 
-Rectangle TextableWidgetDisplayer::GetTextSize(const TextableWidget &textableWidget)
+Rectangle StaticTextWidgetDisplayer::GetTextSize(const StaticTextWidget &StaticTextWidget)
 {
-    TTF_Font* font = TTF_OpenFont(textableWidget.GetFont(), textableWidget.GetFontSize());
+    TTF_Font* font = TTF_OpenFont(StaticTextWidget.GetFont(), StaticTextWidget.GetFontSize());
     int w, h;
-    TTF_SizeText(font, textableWidget.GetText(), &w, &h);
-    const Rectangle location = textableWidget.GetLocation();
+    TTF_SizeText(font, StaticTextWidget.GetText(), &w, &h);
+    const Rectangle location = StaticTextWidget.GetLocation();
     return Rectangle(location.X, location.Y, w, h); 
 }

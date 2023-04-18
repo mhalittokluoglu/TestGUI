@@ -17,7 +17,7 @@ namespace MTK
         bool CreateButton(WindowID windowID, Button &button);
         bool CreateLabel(WindowID windowID, Label &label);
         bool CreateWidget(WindowID windowID, Widget &widget);
-        bool CreateTextableWidget(WindowID windowID, TextableWidget &textableWidget);
+        bool CreateStaticTextWidget(WindowID windowID, StaticTextWidget &StaticTextWidget);
         bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
         bool RegisterHoverEventHandler(WidgetID widgetID, IHoverHandler *handler);
 

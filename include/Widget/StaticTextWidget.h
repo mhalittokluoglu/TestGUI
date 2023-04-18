@@ -1,19 +1,19 @@
-#ifndef _MTK_TEXTABLEWIDGET_H_
-#define _MTK_TEXTABLEWIDGET_H_
+#ifndef _MTK_StaticTextWidget_H_
+#define _MTK_StaticTextWidget_H_
 #include "Widget.h"
 #include "Constants.h"
 namespace MTK
 {
-    class TextableWidget : public Widget
+    class StaticTextWidget : public Widget
     {
     public:
-        TextableWidget(Rectangle location,
+        StaticTextWidget(Rectangle location,
                         RGBA bgColor,
                         RGBA fgColor,
                         const char *text,
                         const char *font,
                         uint8_t fontSize);
-        virtual ~TextableWidget() { }
+        virtual ~StaticTextWidget() { }
 
     // Setters
         void SetText(const char *text);
@@ -35,4 +35,4 @@ namespace MTK
     };
 } // namespace MTK
 
-#endif // _MTK_TEXTABLEWIDGET_H_
+#endif // _MTK_StaticTextWidget_H_

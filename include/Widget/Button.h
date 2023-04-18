@@ -1,12 +1,12 @@
 #ifndef _MTK_BUTTON_H_
 #define _MTK_BUTTON_H_
-#include "TextableWidget.h"
+#include "StaticTextWidget.h"
 #include "IButtonClickedEvent.h"
 #include "EventHandler/IClickHandler.h"
 namespace MTK
 {
     class ButtonClickHandler;
-    class Button : public TextableWidget
+    class Button : public StaticTextWidget
     {
     public:
         Button(Rectangle location,

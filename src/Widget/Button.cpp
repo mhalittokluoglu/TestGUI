@@ -11,7 +11,7 @@ Button::Button(Rectangle location,
     const char *font,
     RGBA bgColor, RGBA fgColor,
     uint8_t fontSize):
-        TextableWidget(location, bgColor,
+        StaticTextWidget(location, bgColor,
                 fgColor, text, font, fontSize)
 {
     m_ClickedHandler = new ButtonClickHandler(this, nullptr);

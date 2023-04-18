@@ -1,9 +1,9 @@
 #ifndef _MTK_LABEL_H_
 #define _MTK_LABEL_H_
-#include "TextableWidget.h"
+#include "StaticTextWidget.h"
 namespace MTK
 {
-    class Label : public TextableWidget
+    class Label : public StaticTextWidget
     {
     public:
         Label(Rectangle location,
@@ -12,7 +12,7 @@ namespace MTK
             RGBA bgColor = RGBA(0xFF, 0xFF, 0xFF, 0x00),
             RGBA fgColor = RGBA(0x00, 0x00, 0x00, 0xFF),
             uint8_t fontSize = 12):
-                TextableWidget(location, bgColor,
+                StaticTextWidget(location, bgColor,
                 fgColor, text, font, fontSize) { }
         virtual ~Label() { }
     };

@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
     MTK::TestHoverHandler testhoverHandler(widget);
     mtk.RegisterHoverEventHandler(widget.GetWidgetID(), &testhoverHandler);
 
-    MTK::TextableWidget textableWidget(MTK::Rectangle(250, 400, 150, 50),
+    MTK::StaticTextWidget StaticTextWidget(MTK::Rectangle(250, 400, 150, 50),
         MTK::RGBA(0xAA, 0xAA, 0xAA, 0xFF), MTK::RGBA(0, 0, 0, 0xFF), "Test Widget",
         "Fira Code", 11);
-    mtk.CreateTextableWidget(mainWindow.GetWindowID(), textableWidget);
-    MTK::TestClickHandler testClickHandler2(textableWidget);
-    mtk.RegisterClickEventHandler(textableWidget.GetWidgetID(), &testClickHandler2);
+    mtk.CreateStaticTextWidget(mainWindow.GetWindowID(), StaticTextWidget);
+    MTK::TestClickHandler testClickHandler2(StaticTextWidget);
+    mtk.RegisterClickEventHandler(StaticTextWidget.GetWidgetID(), &testClickHandler2);
 
 
     MTK::Label label1(MTK::Rectangle(50, 50),"Merhaba");
