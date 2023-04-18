@@ -1,5 +1,6 @@
 #include "DynamicTextWidgetDisplayer.h"
 #include "SDL_Related/SDL_ttf_Include.h"
+#include <iostream>
 
 using namespace MTK;
 
@@ -15,6 +16,7 @@ DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
         m_TextPosition {0,0}
 {
     m_Font = TTF_OpenFont(m_DynamicTextWidget.GetFont(), m_DynamicTextWidget.GetFontSize());
+    m_CharWidth = GetCharTextWidth(m_DynamicTextWidget);
 }
 
 DynamicTextWidgetDisplayer::~DynamicTextWidgetDisplayer()
@@ -50,8 +52,15 @@ void DynamicTextWidgetDisplayer::Render()
     SDL_Rect rect { location.X, location.Y, location.W, location.H };
     SDL_RenderFillRect(m_Renderer, &rect);
 
-
-    SDL_Surface* textSurface = TTF_RenderUTF8_Shaded_Wrapped(m_Font, m_DynamicTextWidget.GetText(), fg, bg, location.W);
+    int32_t maxLength = location.W / m_CharWidth; 
+    int32_t textLength = m_DynamicTextWidget.GetTextSize();
+    const char *textToDisplay = m_DynamicTextWidget.GetText();
+    if (textLength > maxLength)
+    {
+        std::string text = m_DynamicTextWidget.GetTextString();
+        textToDisplay = &textToDisplay[textLength - maxLength];
+    }
+    SDL_Surface* textSurface = TTF_RenderUTF8_Shaded(m_Font, textToDisplay, fg, bg);
 
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(m_Renderer, textSurface);
 
@@ -68,13 +77,34 @@ void DynamicTextWidgetDisplayer::Render()
         textLocation.w = textSurface->w;
         textLocation.h = textSurface->h;
     }
-    
+    if (textLocation.w > location.W)
+    {
+        textLocation.w = location.W;
+    }
     SDL_RenderCopy(m_Renderer, textTexture, nullptr, &textLocation);
     SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
     if (textLocation.w != 0 && textLocation.h != 0)
     {
+
         int x = textLocation.w + textLocation.x;
-        int y = textLocation.h + textLocation.y;
-        SDL_RenderDrawLine(m_Renderer, x, y - m_DynamicTextWidget.GetFontSize() , x, y);
+        int y = textLocation.y;
+        SDL_RenderDrawLine(m_Renderer, x, y, x, y + textLocation.h);
     }
 }
+
+int DynamicTextWidgetDisplayer::GetTextHeight(const DynamicTextWidget &widget)
+{
+    TTF_Font* font = TTF_OpenFont(widget.GetFont(), widget.GetFontSize());
+    int w, h;
+    TTF_SizeText(font,"Test|", &w, &h);
+    return h;
+}
+
+int DynamicTextWidgetDisplayer::GetCharTextWidth(const DynamicTextWidget &widget)
+{
+    int w, h;
+    TTF_Font* font = TTF_OpenFont(widget.GetFont(), widget.GetFontSize());
+    TTF_SizeText(font,"i", &w, &h);
+    return w;
+}
+

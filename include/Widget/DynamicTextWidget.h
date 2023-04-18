@@ -25,6 +25,8 @@ namespace MTK
         inline const char* GetFont() const { return m_Font; }
         inline uint8_t GetFontSize() const { return m_FontSize; }
         inline const char* GetText() const { return m_Text.c_str(); }
+        inline const int32_t GetTextSize() const { return (int32_t)m_Text.size(); }
+        inline std::string GetTextString() const { return m_Text; }
         
         inline void AddString(const char* str) const { m_Text += str; }
         inline void ClearString() const { m_Text.clear(); }

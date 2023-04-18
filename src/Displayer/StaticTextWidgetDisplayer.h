@@ -17,6 +17,7 @@ namespace MTK
         virtual void Render() override;
 
         static Rectangle GetTextSize(const StaticTextWidget &staticTextWidget);
+        static Rectangle GetTextSize(const char* text, const char *font, uint8_t fontSize);
 
     protected:
         SDL_Texture *m_Texture;

@@ -176,6 +176,10 @@ bool ToolKit::CreateDynamicTextWidget(WindowID windowID, DynamicTextWidget& dyna
         return false;
     }
     dynamicTextWidget.SetWindowID(windowID);
+    Rectangle location = dynamicTextWidget.GetLocation();
+    int height = DynamicTextWidgetDisplayer::GetTextHeight(dynamicTextWidget);
+    location.H = height;
+    dynamicTextWidget.SetLocation(location);
     SDL_Renderer *sdlRenderer = SDLRendererMap.at(windowID); 
     DynamicTextWidgetDisplayer *displayer = new DynamicTextWidgetDisplayer(m_CursorManager, dynamicTextWidget, sdlRenderer);
     AddToWidgetDisplayerList(windowID, widgetID, displayer);

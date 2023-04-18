@@ -19,11 +19,14 @@ namespace MTK
         virtual void Render() override;
 
         inline void SetFocus(bool focused) { m_bFocused = focused; }
+        static int GetTextHeight(const DynamicTextWidget &widget);
+        static int GetCharTextWidth(const DynamicTextWidget &widget);
 
     protected:
         const DynamicTextWidget &m_DynamicTextWidget;
         TTF_Font *m_Font;
         Position m_TextPosition;
+        int32_t m_CharWidth;
     };
 } // namespace MTK
 
