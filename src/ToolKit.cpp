@@ -63,6 +63,7 @@ ToolKit::ToolKit()
         SDL_Quit();
     }
     m_CursorManager = new CursorManager();
+    
 }
 
 ToolKit::~ToolKit()
@@ -94,6 +95,7 @@ bool ToolKit::CreateWindow(Window &window)
         SDL_DestroyWindow(sdlWindow);
         return false;
     }
+    SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_BLEND);
 
     RGBA bg = window.GetBackgroundColor();
     SDL_SetRenderDrawColor(sdlRenderer, bg.R, bg.G, bg.B, bg.A);
@@ -124,6 +126,16 @@ bool MTK::ToolKit::CreateButton(WindowID windowID, Button &button)
         return false;
     }
     return true;
+}
+
+bool MTK::ToolKit::CreateLabel(WindowID windowID, Label &label)
+{
+    bool bResult = false;
+    if (CreateTextableWidget(windowID, label))
+    {
+        bResult = true;;
+    }
+    return bResult;
 }
 
 bool ToolKit::CreateWidget(WindowID windowID, Widget &widget)
@@ -194,6 +206,7 @@ void ToolKit::MainLoop()
 
             Position mousePosition;
             SDL_GetMouseState(&mousePosition.X, &mousePosition.Y);
+            m_CursorManager->SetCursor(SDL_SYSTEM_CURSOR_ARROW);
             WindowID windowID = event.window.windowID;
 
             if (DisplayerMap.find(windowID)!= DisplayerMap.end())
@@ -204,7 +217,7 @@ void ToolKit::MainLoop()
                     displayer->Handle(event, mousePosition);
                 });
             }
-            SDL_Cursor* sdlCursor = static_cast<SDL_Cursor*>(m_CursorManager->GetCursor());
+            SDL_Cursor* sdlCursor = m_CursorManager->GetCursor();
             SDL_SetCursor(sdlCursor);
         }
 

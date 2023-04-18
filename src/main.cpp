@@ -2,6 +2,7 @@
 #include <iostream>
 #include "TestHandler/TestClickHandler.h"
 #include "TestHandler/TestHoverHandler.h"
+#include "Widget/Label.h"
 
 class TestEvent : public MTK::IButtonClickedEvent
 {
@@ -54,6 +55,10 @@ int main(int argc, char *argv[])
     mtk.CreateTextableWidget(mainWindow.GetWindowID(), textableWidget);
     MTK::TestClickHandler testClickHandler2(textableWidget);
     mtk.RegisterClickEventHandler(textableWidget.GetWidgetID(), &testClickHandler2);
+
+
+    MTK::Label label1(MTK::Rectangle(50, 50),"Merhaba");
+    mtk.CreateLabel(mainWindow.GetWindowID(), label1);
 
     mtk.MainLoop();
     return 0;

@@ -20,6 +20,8 @@ TextableWidgetDisplayer::TextableWidgetDisplayer(
 
     TTF_Font* font = TTF_OpenFont(m_TextableWidget.GetFont(), m_TextableWidget.GetFontSize());
     SDL_Surface* textSurface = TTF_RenderText_Shaded(font, m_TextableWidget.GetText(), fg, bg);
+    if (bg.a == 0)
+        textSurface = TTF_RenderText_Blended(font, m_TextableWidget.GetText(), fg);
     m_Texture = SDL_CreateTextureFromSurface(m_Renderer, textSurface);
 
     m_TextLocation.x = location.X;

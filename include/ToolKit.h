@@ -2,6 +2,7 @@
 #define _MTK_TOOLKIT_H_
 #include "Window.h"
 #include "Widget/Button.h"
+#include "Widget/Label.h"
 #include "EventHandler/IClickHandler.h"
 #include "EventHandler/IHoverHandler.h"
 #include "Widget/CursorManager.h"
@@ -14,6 +15,7 @@ namespace MTK
         ~ToolKit();
         bool CreateWindow(Window &window);
         bool CreateButton(WindowID windowID, Button &button);
+        bool CreateLabel(WindowID windowID, Label &label);
         bool CreateWidget(WindowID windowID, Widget &widget);
         bool CreateTextableWidget(WindowID windowID, TextableWidget &textableWidget);
         bool RegisterClickEventHandler(WidgetID widgetID, IClickHandler *handler);
