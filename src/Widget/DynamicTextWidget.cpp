@@ -34,3 +34,9 @@ void DynamicTextWidget::SetFont(const char *font)
     }
     memcpy(m_Font, font, fontLength);
 }
+
+void DynamicTextWidget::DeleteChar() const
+{
+    if (m_Text.size() > 0)
+        m_Text.erase(m_Text.size() - 1);
+}

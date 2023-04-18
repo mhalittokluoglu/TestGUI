@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 
     MTK::DynamicTextWidget textWidget(MTK::Rectangle(250,50, 200, 50),
         MTK::RGBA(0xFF, 0xFF, 0xFF, 0xFF),
-        MTK::RGBA(0, 0, 0, 0xFF), "Fira Code", 12);
+        MTK::RGBA(0, 0, 0, 0xFF), "Fira Code", 19);
     mtk.CreateDynamicTextWidget(mainWindow.GetWindowID(), textWidget);
 
     mtk.MainLoop();

@@ -21,12 +21,16 @@ namespace MTK
         inline void SetFocus(bool focused) { m_bFocused = focused; }
         static int GetTextHeight(const DynamicTextWidget &widget);
         static int GetCharTextWidth(const DynamicTextWidget &widget);
+        uint64_t GetTimeInMillisecond() const;
 
     protected:
         const DynamicTextWidget &m_DynamicTextWidget;
         TTF_Font *m_Font;
         Position m_TextPosition;
         int32_t m_CharWidth;
+        int32_t m_TextHeight;
+        uint64_t m_PrevTime;
+        bool m_BlinkingOn;
     };
 } // namespace MTK
 

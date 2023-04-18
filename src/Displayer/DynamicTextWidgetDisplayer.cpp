@@ -1,9 +1,11 @@
 #include "DynamicTextWidgetDisplayer.h"
 #include "SDL_Related/SDL_ttf_Include.h"
 #include <iostream>
+#include <chrono>
 
 using namespace MTK;
 
+bool keyPressing = false;
 DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
     CursorManager *cursorManager,
     const DynamicTextWidget &dynamicTextWidget,
@@ -13,10 +15,13 @@ DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
         renderer),
         m_DynamicTextWidget { dynamicTextWidget },
         m_Font { nullptr },
-        m_TextPosition {0,0}
+        m_TextPosition {0,0},
+        m_BlinkingOn { false }
 {
     m_Font = TTF_OpenFont(m_DynamicTextWidget.GetFont(), m_DynamicTextWidget.GetFontSize());
     m_CharWidth = GetCharTextWidth(m_DynamicTextWidget);
+    m_TextHeight = GetTextHeight(m_DynamicTextWidget);
+    m_PrevTime = GetTimeInMillisecond();
 }
 
 DynamicTextWidgetDisplayer::~DynamicTextWidgetDisplayer()
@@ -33,9 +38,24 @@ void DynamicTextWidgetDisplayer::Handle(
     {
         m_CursorManager->SetCursor(CURSOR_IBEAM);
     }
-    if (m_bFocused && event.type == SDL_TEXTINPUT)
+    if (m_bFocused)
     {
-        m_DynamicTextWidget.AddString(event.text.text);
+        if (event.type == SDL_TEXTINPUT)
+        {
+            m_DynamicTextWidget.AddString(event.text.text);
+        }
+        if (event.type == SDL_KEYDOWN)
+        {
+            if (event.key.keysym.sym == SDLK_BACKSPACE)
+            {
+                m_DynamicTextWidget.DeleteChar();
+            }
+            keyPressing = true;
+        }
+        else
+        {
+            keyPressing = false;
+        }
     }
 }
 
@@ -70,7 +90,7 @@ void DynamicTextWidgetDisplayer::Render()
     if (textSurface == nullptr)
     {
         textLocation.w = 0;
-        textLocation.h = 0;
+        textLocation.h = m_TextHeight;
     }
     else
     {
@@ -83,9 +103,20 @@ void DynamicTextWidgetDisplayer::Render()
     }
     SDL_RenderCopy(m_Renderer, textTexture, nullptr, &textLocation);
     SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
-    if (textLocation.w != 0 && textLocation.h != 0)
+    uint64_t currentTime = GetTimeInMillisecond();
+    bool bTimeValid = currentTime - m_PrevTime > 500;
+    if (m_bFocused && keyPressing)
     {
-
+        m_BlinkingOn = true;
+        m_PrevTime = currentTime;
+    }
+    else if (m_bFocused && bTimeValid)
+    {
+        m_BlinkingOn = !m_BlinkingOn;
+        m_PrevTime = currentTime;
+    }
+    if (m_BlinkingOn && m_bFocused)
+    {
         int x = textLocation.w + textLocation.x;
         int y = textLocation.y;
         SDL_RenderDrawLine(m_Renderer, x, y, x, y + textLocation.h);
@@ -108,3 +139,12 @@ int DynamicTextWidgetDisplayer::GetCharTextWidth(const DynamicTextWidget &widget
     return w;
 }
 
+uint64_t DynamicTextWidgetDisplayer::GetTimeInMillisecond() const
+{
+    using namespace std;
+    using namespace std::chrono;
+    time_point<system_clock> now = system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+    return (uint64_t) millis;
+}

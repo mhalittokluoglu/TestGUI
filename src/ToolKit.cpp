@@ -217,7 +217,7 @@ void ToolKit::MainLoop()
     bool bIsRunning = true;
     while (bIsRunning)
     {
-        while (SDL_WaitEventTimeout(&event, 50))
+        if (SDL_WaitEventTimeout(&event, 50))
         {
             if (event.type == SDL_QUIT)
             {

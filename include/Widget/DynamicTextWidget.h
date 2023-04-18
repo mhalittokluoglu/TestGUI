@@ -30,6 +30,7 @@ namespace MTK
         
         inline void AddString(const char* str) const { m_Text += str; }
         inline void ClearString() const { m_Text.clear(); }
+        void DeleteChar() const;
 
     protected:
         char m_Font[MAX_FONT_SIZE];
