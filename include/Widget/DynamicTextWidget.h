@@ -29,8 +29,9 @@ namespace MTK
         inline std::string GetTextString() const { return m_Text; }
         
         inline void AddString(const char* str) const { m_Text += str; }
+        int AddString(const char* str, int index) const;
         inline void ClearString() const { m_Text.clear(); }
-        void DeleteChar() const;
+        void DeleteChar(int index) const;
 
     protected:
         char m_Font[MAX_FONT_SIZE];

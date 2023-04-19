@@ -31,6 +31,8 @@ namespace MTK
         int32_t m_TextHeight;
         uint64_t m_PrevTime;
         bool m_BlinkingOn;
+        int32_t m_CursorIndex;
+        Position m_MousePosition;
     };
 } // namespace MTK
 

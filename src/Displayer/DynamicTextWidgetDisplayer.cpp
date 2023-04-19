@@ -16,7 +16,8 @@ DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
         m_DynamicTextWidget { dynamicTextWidget },
         m_Font { nullptr },
         m_TextPosition {0,0},
-        m_BlinkingOn { false }
+        m_BlinkingOn { false },
+        m_CursorIndex { 0 }
 {
     m_Font = TTF_OpenFont(m_DynamicTextWidget.GetFont(), m_DynamicTextWidget.GetFontSize());
     m_CharWidth = GetCharTextWidth(m_DynamicTextWidget);
@@ -38,18 +39,37 @@ void DynamicTextWidgetDisplayer::Handle(
     {
         m_CursorManager->SetCursor(CURSOR_IBEAM);
     }
+    if (m_bClicked)
+    {
+        m_CursorIndex = (mousePosition.X - m_DynamicTextWidget.GetLocation().X) / m_CharWidth;
+    }
     if (m_bFocused)
     {
         if (event.type == SDL_TEXTINPUT)
         {
-            m_DynamicTextWidget.AddString(event.text.text);
+            m_CursorIndex = m_DynamicTextWidget.AddString(event.text.text, m_CursorIndex);
         }
         if (event.type == SDL_KEYDOWN)
         {
             if (event.key.keysym.sym == SDLK_BACKSPACE)
             {
-                m_DynamicTextWidget.DeleteChar();
+                if (m_DynamicTextWidget.GetTextSize() < m_CursorIndex)
+                    m_CursorIndex = m_DynamicTextWidget.GetTextSize();
+                m_DynamicTextWidget.DeleteChar(m_CursorIndex);
+                if (m_CursorIndex > 0 )
+                    m_CursorIndex--;
             }
+            keyPressing = true;
+        }
+        else if ( event.key.keysym.sym == SDLK_LEFT)
+        {
+            if (m_CursorIndex > 0 )
+                m_CursorIndex--;
+            keyPressing = true;
+        }
+        else if ( event.key.keysym.sym == SDLK_RIGHT)
+        {
+            m_CursorIndex++;
             keyPressing = true;
         }
         else
@@ -105,6 +125,12 @@ void DynamicTextWidgetDisplayer::Render()
     SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
     uint64_t currentTime = GetTimeInMillisecond();
     bool bTimeValid = currentTime - m_PrevTime > 500;
+
+    if (m_DynamicTextWidget.GetTextSize() < m_CursorIndex)
+    {
+        m_CursorIndex = m_DynamicTextWidget.GetTextSize();
+    }
+
     if (m_bFocused && keyPressing)
     {
         m_BlinkingOn = true;
@@ -117,7 +143,8 @@ void DynamicTextWidgetDisplayer::Render()
     }
     if (m_BlinkingOn && m_bFocused)
     {
-        int x = textLocation.w + textLocation.x;
+        int x = location.X + m_CursorIndex * m_CharWidth;
+        // int x = textLocation.w + textLocation.x;
         int y = textLocation.y;
         SDL_RenderDrawLine(m_Renderer, x, y, x, y + textLocation.h);
     }

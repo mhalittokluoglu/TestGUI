@@ -35,8 +35,33 @@ void DynamicTextWidget::SetFont(const char *font)
     memcpy(m_Font, font, fontLength);
 }
 
-void DynamicTextWidget::DeleteChar() const
+int DynamicTextWidget::AddString(const char* str, int index) const
 {
+    if (m_Text.size() < index)
+    {
+        index = m_Text.size();
+        AddString(str);
+    }
+    else
+    {
+        std::string rightSide = m_Text.substr(index, m_Text.size() - index);
+        std::string leftSide = m_Text.substr(0, index);
+        m_Text = leftSide;
+        m_Text += str;
+        m_Text += rightSide;
+        index++;
+    }
+    return index;
+}
+
+void DynamicTextWidget::DeleteChar(int index) const
+{
+    index--;
     if (m_Text.size() > 0)
-        m_Text.erase(m_Text.size() - 1);
+    {
+        if (index >= 0 )
+        {
+            m_Text.erase(m_Text.begin() + index);
+        }
+    }
 }

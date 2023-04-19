@@ -12,6 +12,7 @@ WidgetDisplayer::WidgetDisplayer(CursorManager* cursorManager, const Widget &wid
     m_Renderer { renderer },
     bMousePressedState { false },
     bMouseHover { false },
+    m_bClicked { false },
     m_bFocused { false }
 {
 }
@@ -21,6 +22,7 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
 {
     const Rectangle &widgetLocation = m_Widget.GetLocation();
     bMouseHover = false;
+    m_bClicked = false;
     if (DisplayerService::IsOverlapped(widgetLocation, mousePosition))
     {
         bMouseHover = true;
@@ -41,6 +43,7 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
         {
             if (bMousePressedState)
             {
+                m_bClicked = true;
                 if (m_ClickHandler != nullptr)
                 {
                     m_ClickHandler->OnClicked();
