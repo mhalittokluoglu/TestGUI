@@ -43,13 +43,13 @@ void StaticTextWidgetDisplayer::Render()
 {
     const Rectangle &location = m_StaticTextWidget.GetLocation();
     SDL_RenderCopy(m_Renderer, m_Texture, nullptr, &m_TextLocation);
-    if (bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
+    if (m_bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
     {
         SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
         SDL_RenderDrawRect(m_Renderer, &rectBorder);
     }
-    else if (bMouseHover && m_HoverHandler != nullptr && m_HoverHandler->GetHoverEffectAvailable())
+    else if (m_bMouseHover && m_HoverHandler != nullptr && m_HoverHandler->GetHoverEffectAvailable())
     {
         SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
         SDL_SetRenderDrawColor(m_Renderer, 0xFF, 0xFF, 0xFF, 0xFF);

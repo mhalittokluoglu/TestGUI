@@ -17,12 +17,17 @@ DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
         m_Font { nullptr },
         m_TextPosition {0,0},
         m_BlinkingOn { false },
-        m_CursorIndex { 0 }
+        m_CursorIndex { 0 },
+        m_DisplayCursorIndex { 0 },
+        m_DisplayStartIndex { 0 }
 {
     m_Font = TTF_OpenFont(m_DynamicTextWidget.GetFont(), m_DynamicTextWidget.GetFontSize());
     m_CharWidth = GetCharTextWidth(m_DynamicTextWidget);
     m_TextHeight = GetTextHeight(m_DynamicTextWidget);
     m_PrevTime = GetTimeInMillisecond();
+    m_DisplayTextSize = m_DynamicTextWidget.GetLocation().W / m_CharWidth;
+    m_TextToDisplay = new char[m_DisplayTextSize + 1];
+    memset(m_TextToDisplay, 0, sizeof(m_TextToDisplay));
 }
 
 DynamicTextWidgetDisplayer::~DynamicTextWidgetDisplayer()
@@ -34,48 +39,56 @@ void DynamicTextWidgetDisplayer::Handle(
     const SDL_Event &event,
     const Position &mousePosition)
 {
+    bool bStrngAvailable;
     WidgetDisplayer::Handle(event, mousePosition);
-    if (bMouseHover)
+    if (m_bMouseHover)
     {
         m_CursorManager->SetCursor(CURSOR_IBEAM);
     }
     if (m_bClicked)
     {
-        m_CursorIndex = (mousePosition.X - m_DynamicTextWidget.GetLocation().X) / m_CharWidth;
+        m_DisplayCursorIndex = (mousePosition.X - m_DynamicTextWidget.GetLocation().X) / m_CharWidth;
+        if (m_DisplayCursorIndex > m_DynamicTextWidget.GetTextSize())
+        {
+            m_DisplayCursorIndex = m_DynamicTextWidget.GetTextSize();
+        }
     }
     if (m_bFocused)
     {
-        if (event.type == SDL_TEXTINPUT)
-        {
-            m_CursorIndex = m_DynamicTextWidget.AddString(event.text.text, m_CursorIndex);
-        }
         if (event.type == SDL_KEYDOWN)
         {
-            if (event.key.keysym.sym == SDLK_BACKSPACE)
+            if ( event.key.keysym.sym == SDLK_LEFT)
             {
-                if (m_DynamicTextWidget.GetTextSize() < m_CursorIndex)
-                    m_CursorIndex = m_DynamicTextWidget.GetTextSize();
-                m_DynamicTextWidget.DeleteChar(m_CursorIndex);
-                if (m_CursorIndex > 0 )
-                    m_CursorIndex--;
+                DecrementDisplayIndexes(m_DisplayCursorIndex, m_DisplayStartIndex);
+            }
+            else if ( event.key.keysym.sym == SDLK_RIGHT)
+            {
+                IncrementDisplayIndexes(m_DisplayCursorIndex, m_DisplayStartIndex);
             }
             keyPressing = true;
-        }
-        else if ( event.key.keysym.sym == SDLK_LEFT)
-        {
-            if (m_CursorIndex > 0 )
-                m_CursorIndex--;
-            keyPressing = true;
-        }
-        else if ( event.key.keysym.sym == SDLK_RIGHT)
-        {
-            m_CursorIndex++;
-            keyPressing = true;
+            if (event.key.keysym.sym == SDLK_BACKSPACE)
+            {
+                m_DynamicTextWidget.DeleteChar(m_DisplayCursorIndex + m_DisplayStartIndex);
+                DecrementDisplayIndexes(m_DisplayCursorIndex, m_DisplayStartIndex);
+            }
         }
         else
         {
             keyPressing = false;
         }
+        if (event.type == SDL_TEXTINPUT)
+        {
+            m_DynamicTextWidget.AddString(event.text.text, m_DisplayCursorIndex + m_DisplayStartIndex);
+            IncrementDisplayIndexes(m_DisplayCursorIndex, m_DisplayStartIndex);
+            keyPressing = true;
+        }
+        const char* text = m_DynamicTextWidget.GetText();
+        int32_t textSize = strlen(text);
+        memset(m_TextToDisplay, 0, m_DisplayTextSize + 1);
+        if (m_DisplayTextSize < textSize)
+            textSize = m_DisplayTextSize;
+        memcpy(m_TextToDisplay, &text[m_DisplayStartIndex], textSize);
+        int a = 3;
     }
 }
 
@@ -92,15 +105,7 @@ void DynamicTextWidgetDisplayer::Render()
     SDL_Rect rect { location.X, location.Y, location.W, location.H };
     SDL_RenderFillRect(m_Renderer, &rect);
 
-    int32_t maxLength = location.W / m_CharWidth; 
-    int32_t textLength = m_DynamicTextWidget.GetTextSize();
-    const char *textToDisplay = m_DynamicTextWidget.GetText();
-    if (textLength > maxLength)
-    {
-        std::string text = m_DynamicTextWidget.GetTextString();
-        textToDisplay = &textToDisplay[textLength - maxLength];
-    }
-    SDL_Surface* textSurface = TTF_RenderUTF8_Shaded(m_Font, textToDisplay, fg, bg);
+    SDL_Surface* textSurface = TTF_RenderUTF8_Shaded(m_Font, m_TextToDisplay, fg, bg);
 
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(m_Renderer, textSurface);
 
@@ -126,11 +131,6 @@ void DynamicTextWidgetDisplayer::Render()
     uint64_t currentTime = GetTimeInMillisecond();
     bool bTimeValid = currentTime - m_PrevTime > 500;
 
-    if (m_DynamicTextWidget.GetTextSize() < m_CursorIndex)
-    {
-        m_CursorIndex = m_DynamicTextWidget.GetTextSize();
-    }
-
     if (m_bFocused && keyPressing)
     {
         m_BlinkingOn = true;
@@ -143,8 +143,7 @@ void DynamicTextWidgetDisplayer::Render()
     }
     if (m_BlinkingOn && m_bFocused)
     {
-        int x = location.X + m_CursorIndex * m_CharWidth;
-        // int x = textLocation.w + textLocation.x;
+        int x = location.X + m_DisplayCursorIndex * m_CharWidth;
         int y = textLocation.y;
         SDL_RenderDrawLine(m_Renderer, x, y, x, y + textLocation.h);
     }
@@ -174,4 +173,27 @@ uint64_t DynamicTextWidgetDisplayer::GetTimeInMillisecond() const
     auto duration = now.time_since_epoch();
     auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     return (uint64_t) millis;
+}
+
+void DynamicTextWidgetDisplayer::IncrementDisplayIndexes(
+    int32_t &displayCursorIndex,
+    int32_t &displayStartIndex)
+{
+    if (displayCursorIndex + displayStartIndex < m_DynamicTextWidget.GetTextSize())
+    {
+        if (displayCursorIndex < m_DisplayTextSize)
+            displayCursorIndex++;
+        else
+            displayStartIndex++;
+    }
+}
+
+void DynamicTextWidgetDisplayer::DecrementDisplayIndexes(
+    int32_t &displayCursorIndex,
+    int32_t &displayStartIndex)
+{
+    if (displayCursorIndex > 0 )
+        displayCursorIndex--;
+    else if (displayStartIndex > 0 )
+            displayStartIndex--;
 }

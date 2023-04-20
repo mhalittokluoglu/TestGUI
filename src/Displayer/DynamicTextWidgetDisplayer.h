@@ -33,6 +33,17 @@ namespace MTK
         bool m_BlinkingOn;
         int32_t m_CursorIndex;
         Position m_MousePosition;
+
+    protected:
+        int32_t m_DisplayCursorIndex;
+        int32_t m_DisplayStartIndex;
+        int32_t m_DisplayTextSize;
+        char *m_TextToDisplay;
+
+        void IncrementDisplayIndexes(int32_t &displayCursorIndex,
+            int32_t &displayStartIndex);
+        void DecrementDisplayIndexes(int32_t &displayCursorIndex,
+            int32_t &displayStartIndex);
     };
 } // namespace MTK
 

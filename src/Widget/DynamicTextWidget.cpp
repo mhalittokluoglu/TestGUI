@@ -35,7 +35,7 @@ void DynamicTextWidget::SetFont(const char *font)
     memcpy(m_Font, font, fontLength);
 }
 
-int DynamicTextWidget::AddString(const char* str, int index) const
+void DynamicTextWidget::AddString(const char* str, int index) const
 {
     if (m_Text.size() < index)
     {
@@ -49,9 +49,7 @@ int DynamicTextWidget::AddString(const char* str, int index) const
         m_Text = leftSide;
         m_Text += str;
         m_Text += rightSide;
-        index++;
     }
-    return index;
 }
 
 void DynamicTextWidget::DeleteChar(int index) const

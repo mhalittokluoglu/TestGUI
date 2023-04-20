@@ -29,7 +29,7 @@ namespace MTK
         inline std::string GetTextString() const { return m_Text; }
         
         inline void AddString(const char* str) const { m_Text += str; }
-        int AddString(const char* str, int index) const;
+        void AddString(const char* str, int index) const;
         inline void ClearString() const { m_Text.clear(); }
         void DeleteChar(int index) const;
 

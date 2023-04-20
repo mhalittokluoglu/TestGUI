@@ -10,8 +10,8 @@ WidgetDisplayer::WidgetDisplayer(CursorManager* cursorManager, const Widget &wid
     m_CursorManager { cursorManager },
     m_Widget { widget },
     m_Renderer { renderer },
-    bMousePressedState { false },
-    bMouseHover { false },
+    m_bMousePressedState { false },
+    m_bMouseHover { false },
     m_bClicked { false },
     m_bFocused { false }
 {
@@ -21,11 +21,11 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
     const Position &mousePosition)
 {
     const Rectangle &widgetLocation = m_Widget.GetLocation();
-    bMouseHover = false;
+    m_bMouseHover = false;
     m_bClicked = false;
     if (DisplayerService::IsOverlapped(widgetLocation, mousePosition))
     {
-        bMouseHover = true;
+        m_bMouseHover = true;
         if (m_ClickHandler != nullptr)
         {
             m_CursorManager->SetCursor(CURSOR_HAND);
@@ -37,11 +37,11 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
         }
         if (event.type == SDL_MOUSEBUTTONDOWN)
         {
-            bMousePressedState = true;
+            m_bMousePressedState = true;
         }
         else if (event.type == SDL_MOUSEBUTTONUP)
         {
-            if (bMousePressedState)
+            if (m_bMousePressedState)
             {
                 m_bClicked = true;
                 if (m_ClickHandler != nullptr)
@@ -61,7 +61,7 @@ void WidgetDisplayer::Handle(const SDL_Event &event,
     }
     if (event.type == SDL_MOUSEBUTTONUP)
     {
-        bMousePressedState = false;
+        m_bMousePressedState = false;
     }
 }
 
@@ -72,13 +72,13 @@ void WidgetDisplayer::Render()
     const Rectangle &location = m_Widget.GetLocation();
     SDL_Rect rect { location.X, location.Y, location.W, location.H };
     SDL_RenderFillRect(m_Renderer, &rect);
-    if (bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
+    if (m_bMousePressedState && m_ClickHandler != nullptr && m_ClickHandler->GetClickEffectAvailable())
     {
         SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
         SDL_SetRenderDrawColor(m_Renderer, 0, 0, 0, 0xFF);
         SDL_RenderDrawRect(m_Renderer, &rectBorder);
     }
-    else if (bMouseHover && m_HoverHandler != nullptr && m_HoverHandler->GetHoverEffectAvailable())
+    else if (m_bMouseHover && m_HoverHandler != nullptr && m_HoverHandler->GetHoverEffectAvailable())
     {
         SDL_Rect rectBorder { location.X, location.Y, location.W, location.H };
         SDL_SetRenderDrawColor(m_Renderer, 0xFF, 0xFF, 0xFF, 0xFF);

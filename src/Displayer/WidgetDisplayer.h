@@ -18,8 +18,8 @@ namespace MTK
     protected:
         const Widget &m_Widget;
         SDL_Renderer *m_Renderer;
-        bool bMousePressedState;
-        bool bMouseHover;
+        bool m_bMousePressedState;
+        bool m_bMouseHover;
         bool m_bClicked;
         bool m_bFocused;
         CursorManager *m_CursorManager;
