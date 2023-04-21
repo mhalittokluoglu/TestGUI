@@ -32,6 +32,9 @@ namespace MTK
         void AddString(const char* str, int index) const;
         inline void ClearString() const { m_Text.clear(); }
         void DeleteChar(int index) const;
+        size_t GetUTF8Size() const;
+
+        static size_t GetIndexFromUTF8Index(const char * text, size_t utf8Index);
 
     protected:
         char m_Font[MAX_FONT_SIZE];

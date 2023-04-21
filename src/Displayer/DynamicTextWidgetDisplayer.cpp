@@ -26,8 +26,8 @@ DynamicTextWidgetDisplayer::DynamicTextWidgetDisplayer(
     m_TextHeight = GetTextHeight(m_DynamicTextWidget);
     m_PrevTime = GetTimeInMillisecond();
     m_DisplayTextSize = m_DynamicTextWidget.GetLocation().W / m_CharWidth;
-    m_TextToDisplay = new char[m_DisplayTextSize + 1];
-    memset(m_TextToDisplay, 0, sizeof(m_TextToDisplay));
+    m_TextToDisplay = new char[(m_DisplayTextSize * 4) + 1];
+    memset(m_TextToDisplay, 0, (m_DisplayTextSize * 4) + 1);
 }
 
 DynamicTextWidgetDisplayer::~DynamicTextWidgetDisplayer()
@@ -83,11 +83,13 @@ void DynamicTextWidgetDisplayer::Handle(
             keyPressing = true;
         }
         const char* text = m_DynamicTextWidget.GetText();
+        int startIndex = m_DynamicTextWidget.GetIndexFromUTF8Index(text, m_DisplayStartIndex);
         int32_t textSize = strlen(text);
-        memset(m_TextToDisplay, 0, m_DisplayTextSize + 1);
-        if (m_DisplayTextSize < textSize)
-            textSize = m_DisplayTextSize;
-        memcpy(m_TextToDisplay, &text[m_DisplayStartIndex], textSize);
+        int32_t utf8Size = m_DynamicTextWidget.GetUTF8Size();
+        memset(m_TextToDisplay, 0, (m_DisplayTextSize * 4) + 1);
+        if (m_DisplayTextSize < utf8Size)
+            textSize = m_DynamicTextWidget.GetIndexFromUTF8Index(text, m_DisplayTextSize);
+        memcpy(m_TextToDisplay, &text[startIndex], textSize);
         int a = 3;
     }
 }
@@ -179,7 +181,7 @@ void DynamicTextWidgetDisplayer::IncrementDisplayIndexes(
     int32_t &displayCursorIndex,
     int32_t &displayStartIndex)
 {
-    if (displayCursorIndex + displayStartIndex < m_DynamicTextWidget.GetTextSize())
+    if (displayCursorIndex + displayStartIndex < m_DynamicTextWidget.GetUTF8Size())
     {
         if (displayCursorIndex < m_DisplayTextSize)
             displayCursorIndex++;
